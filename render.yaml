@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: rail-media-library
+    runtime: docker
+    plan: starter
+    healthCheckPath: /healthz
+    numInstances: 1
+    disk:
+      name: rail-library-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: MEDIA_SESSION_SECRET
+        generateValue: true
+      - key: MEDIA_TEAM_USERS
+        sync: false
+      - key: MEDIA_MODEL_API_KEY
+        sync: false
+      - key: MEDIA_MODEL_PROVIDER
+        value: Alibaba Cloud Model Studio
+      - key: MEDIA_MODEL_BASE_URL
+        value: https://dashscope.aliyuncs.com/compatible-mode/v1
+      - key: MEDIA_MODEL_MODEL
+        value: qwen3.8-flash
+      - key: MEDIA_VISION_MODEL
+        value: qwen-vl-plus

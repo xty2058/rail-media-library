@@ -1,0 +1,5 @@
+.git
+data
+*.local.json
+.env*
+__pycache__

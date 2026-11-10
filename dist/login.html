@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>登录 · 镜头库</title>
+<link rel="stylesheet" href="/style.css">
+<header><div class="brand">镜头库 · 小组空间</div></header>
+<main>
+  <div class="hero"><h1>登录素材库</h1><p>使用组长分配的账号进入共享素材库。</p></div>
+  <form method="post" action="/login" class="panel">
+    <label>账号<input name="username" required maxlength="40" autocomplete="username"></label>
+    <label>密码<input type="password" name="password" required maxlength="128" autocomplete="current-password"></label>
+    <button class="primary">登录</button>
+  </form>
+  <p role="status">{{message}}</p>
+</main>
+</html>
