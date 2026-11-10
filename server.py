@@ -73,11 +73,15 @@ def prepare_video(folder):
     if not executable:
         raise ValueError('WebM 转码失败：本机缺少 FFmpeg')
     temporary = folder/'preview.tmp.mp4'
+    hosted = os.environ.get('MEDIA_TEAM')=='1'
+    scale = ("scale=w='min(iw,1280)':h='min(ih,720)':force_original_aspect_ratio=decrease:"
+             'force_divisible_by=2') if hosted else 'pad=ceil(iw/2)*2:ceil(ih/2)*2'
+    preset = 'veryfast' if hosted else 'fast'
     try:
         result = subprocess.run([executable,'-nostdin','-hide_banner','-loglevel','error','-y',
             '-protocol_whitelist','file','-f','matroska','-i',str(source),'-map','0:v:0','-map','0:a:0?',
-            '-c:v','libx264','-preset','fast','-pix_fmt','yuv420p','-vf','pad=ceil(iw/2)*2:ceil(ih/2)*2',
-            '-c:a','aac','-movflags','+faststart',str(temporary)],capture_output=True,timeout=180)
+            '-c:v','libx264','-preset',preset,'-pix_fmt','yuv420p','-vf',scale,
+            '-c:a','aac','-movflags','+faststart',str(temporary)],capture_output=True,timeout=240 if hosted else 180)
         if result.returncode or not temporary.is_file() or not temporary.stat().st_size:
             raise ValueError('WebM 转码失败，请检查原文件或重试')
         temporary.replace(target)
