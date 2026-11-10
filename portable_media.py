@@ -54,9 +54,16 @@ def analyze(source, folder):
     for index in range(count):
         start,end = duration*index/count,duration*(index+1)/count
         poster = folder/f'{index}.jpg'
-        run('ffmpeg','-nostdin','-v','error','-y','-ss',str((start+end)/2),
-            '-protocol_whitelist','file','-i',str(source),'-frames:v','1',
-            '-vf','scale=768:768:force_original_aspect_ratio=decrease','-q:v','4',str(poster))
+        poster.unlink(missing_ok=True)
+        command = ('ffmpeg','-nostdin','-v','error','-y')
+        output = ('-protocol_whitelist','file','-i',str(source),'-frames:v','1',
+                  '-vf','scale=768:768:force_original_aspect_ratio=decrease','-q:v','4','-update','1',str(poster))
+        if video:
+            run(*command,'-ss',str((start+end)/2),*output)
+        if not poster.is_file():
+            run(*command,*output)
+        if not poster.is_file():
+            raise ValueError('无法从素材生成预览画面')
         description,tags = describe(poster)
         parts.append(dict(start=start,end=end,poster=poster.name,description=description,
                           tags=list(dict.fromkeys([*tags,orientation])),risks=[]))
