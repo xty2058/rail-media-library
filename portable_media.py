@@ -4,6 +4,7 @@ import json
 import math
 import os
 import subprocess
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, build_opener
 
 from search_agent import NoRedirect, settings, within
@@ -30,7 +31,16 @@ def describe(poster):
         with build_opener(NoRedirect()).open(request,timeout=25) as response:
             return json.loads(response.read(65537))
 
-    result = within(25,fetch)
+    for attempt in range(3):
+        try:
+            result = within(25,fetch)
+            break
+        except HTTPError as exc:
+            if exc.code not in (429,500,502,503,504) or attempt==2:
+                raise ValueError(f'画面描述请求失败（HTTP {exc.code}）') from None
+        except (URLError,TimeoutError,ConnectionError):
+            if attempt==2:
+                raise ValueError('画面描述服务暂时不可达，可以重试处理') from None
     content = json.loads(result['choices'][0]['message']['content'])
     description, tags = content['description'], content['tags']
     if not isinstance(description,str) or not description.strip() or not isinstance(tags,list):
