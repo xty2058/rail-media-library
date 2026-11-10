@@ -20,7 +20,7 @@ def describe(poster):
     config = settings()
     data = base64.b64encode(poster.read_bytes()).decode()
     prompt = '仅描述实际可见的画面。给出简短中文描述和最多 8 个标签。不要推测地点或版权。仅返回 JSON，字段 description 和 tags。'
-    body = json.dumps({'model':os.environ.get('MEDIA_VISION_MODEL','qwen-vl-plus'),'max_tokens':300,
+    body = json.dumps({'model':os.environ.get('MEDIA_VISION_MODEL') or config['model'],'max_tokens':300,'enable_thinking':False,
         'response_format':{'type':'json_object'},'messages':[{'role':'user','content':[
         {'type':'text','text':prompt},{'type':'image_url','image_url':{'url':'data:image/jpeg;base64,'+data}}]}]}).encode()
     request = Request(config['base_url'].rstrip('/')+'/chat/completions',body,headers={
